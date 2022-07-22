@@ -73,14 +73,25 @@ WSGI_APPLICATION = 'gefinback.wsgi.application'
 # Database
 # https://docs.djangoproject.com/en/4.0/ref/settings/#databases
 
-DATABASES = {
+LOCALDB = {
     'default': {
         'ENGINE': 'django.db.backends.sqlite3',
         'NAME': BASE_DIR / 'db.sqlite3',
     }
 }
 
-
+DATABASES = {
+    'default': {
+        'ENGINE': 'django.db.backends.mysql',
+        'NAME': 'rodrigosm29$gefin_db',
+        'USER': 'rodrigosm29',
+        'PASSWORD': 'pDb3DhzLpyWyVy4',
+        'HOST': 'rodrigosm29.mysql.pythonanywhere-services.com',
+        'TEST': {
+            'NAME': 'rodrigosm29$test_gefin'
+        }
+    }
+}
 # Password validation
 # https://docs.djangoproject.com/en/4.0/ref/settings/#auth-password-validators
 
