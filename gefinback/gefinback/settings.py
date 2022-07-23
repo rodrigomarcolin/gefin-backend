@@ -11,6 +11,7 @@ https://docs.djangoproject.com/en/4.0/ref/settings/
 """
 
 from pathlib import Path
+import configparser
 
 # Build paths inside the project like this: BASE_DIR / 'subdir'.
 BASE_DIR = Path(__file__).resolve().parent.parent
@@ -80,7 +81,7 @@ LOCALDB = {
     }
 }
 
-DATABASES = {
+MYSQLDB = {
     'default': {
         'ENGINE': 'django.db.backends.mysql',
         'NAME': 'rodrigosm29$gefin_db',
@@ -92,6 +93,13 @@ DATABASES = {
         }
     }
 }
+
+
+if ('MYSQLDB' in configparser.ConfigParser().read('config.ini')):
+    DATABASES = MYSQLDB
+else:
+    DATABASES = LOCALDB
+
 # Password validation
 # https://docs.djangoproject.com/en/4.0/ref/settings/#auth-password-validators
 
