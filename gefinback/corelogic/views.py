@@ -3,7 +3,7 @@ from django.http import HttpResponse, Http404, HttpResponseForbidden
 from django.contrib.auth.models import User
 from rest_framework import viewsets, permissions, mixins, generics
 from rest_framework.response import Response
-from .permissions import IsOwner
+from .permissions import IsOwner, IsAdminUserOrReadOnly
 from .serializers import *
 
 class UserViewSet(viewsets.ModelViewSet):
@@ -19,7 +19,8 @@ class BancoViewSet(viewsets.ModelViewSet):
     """
     serializer_class = BancoSerializer
     queryset = BancoModel.objects.all().order_by('nome')
-    permission_classes = [permissions.IsAdminUser]
+    permission_classes = [IsAdminUserOrReadOnly]
+
 
 class CategoriaViewSet(viewsets.ModelViewSet):
     """
@@ -27,7 +28,7 @@ class CategoriaViewSet(viewsets.ModelViewSet):
     """
     serializer_class = CategoriaSerializer
     queryset = CategoriaModel.objects.all().order_by('nome')
-    permission_classes = [permissions.IsAdminUser]
+    permission_classes = [IsAdminUserOrReadOnly]
 
 #############################################
 # Classes that deal with ContaBancariaModel #

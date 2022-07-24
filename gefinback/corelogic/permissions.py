@@ -1,4 +1,5 @@
 from rest_framework import permissions
+from rest_framework.permissions import IsAdminUser, SAFE_METHODS
 
 class IsOwner(permissions.BasePermission):
     """
@@ -8,3 +9,13 @@ class IsOwner(permissions.BasePermission):
 
     def has_object_permission(self, request, view, obj):
         return obj.dono == request.user
+
+
+class IsAdminUserOrReadOnly(IsAdminUser):
+    """
+        Permite operação se o usuário for administrador ou 
+        se a operação for segura
+    """
+    def has_permission(self, request, view):
+        is_admin = super().has_permission(request, view)
+        return request.method in SAFE_METHODS or is_admin
