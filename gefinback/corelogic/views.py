@@ -64,6 +64,7 @@ class ContaBancariaList(mixins.ListModelMixin,
     def post(self, request, *args, **kwargs):
         return self.create(request, *args, **kwargs)
 
+    # Popula campo de dono da conta como sendo o usuario do request
     def perform_create(self, serializer):
         serializer.save(dono=self.request.user)
 
@@ -107,8 +108,11 @@ class TransacaoList(mixins.CreateModelMixin,
     serializer_class = TransacaoSerializer
     permission_classes = [permissions.IsAuthenticated, ContaBelongsToUser]
 
+    # Executa antes de rodar o resto do código
     def setup(self, request, idconta, *args, **kwargs):
         self.idconta = idconta
+        
+        # Seleciona conta cujo id está na URL
         try:
             self.conta = ContaBancariaModel.objects.filter(id=self.idconta).first()
         except ContaBancariaModel.DoesNotExist:
@@ -127,6 +131,8 @@ class TransacaoList(mixins.CreateModelMixin,
 
         return Response(serializer.data)
 
+    # Ao criar uma transação, adiciona o valor dela à quantia
+    # na conta associada
     def post(self, request, *args, **kwargs):
         self.conta.quantia += float(request.data['quantia'])
         self.conta.save()
@@ -159,12 +165,16 @@ class TransacaoDetail(mixins.RetrieveModelMixin,
     def get(self, request, *args, **kwargs):
         return self.retrieve(request, *args, **kwargs)
 
+    # Ao atualizar o valor de uma transação, atualiza-se
+    # a quantia na conta associada a ela
     def put(self, request, *args, **kwargs):
         transac = TransacaoModel.objects.filter(id=kwargs['pk']).first()
         self.conta.quantia += float(request.data['quantia']) - transac.quantia
         self.conta.save()
         return self.update(request, *args, **kwargs)
 
+    # Ao deletar-se uma transação, subtrai seu valor
+    # da conta associada a ela
     def delete(self, request, *args, **kwargs):
         transac = TransacaoModel.objects.filter(id=kwargs['pk']).first()
         self.conta.quantia -= transac.quantia
