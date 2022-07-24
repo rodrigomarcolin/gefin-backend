@@ -27,6 +27,9 @@ class ContaBancariaModel(models.Model):
     dono = models.ForeignKey(User, on_delete=models.CASCADE, related_name='contas')
     banco = models.ForeignKey(BancoModel, on_delete=models.SET_NULL, blank=True, null=True)
 
+    def __str__(self):
+        return self.dono.__str__() + ": " + self.nome
+
 class ControleModel(models.Model):
     nome = models.CharField(max_length=200)
     desc = models.CharField(max_length=512)
@@ -36,6 +39,9 @@ class ControleModel(models.Model):
     gasto = models.FloatField(default=0)
     tipoGasto = models.BooleanField()
     recorrente = models.BooleanField()
+ 
+    def __str__(self):
+        return self.nome
 
 class TransacaoModel(models.Model):
     quantia = models.FloatField(default=0)
@@ -44,6 +50,9 @@ class TransacaoModel(models.Model):
     categoria = models.ForeignKey(CategoriaModel, on_delete=models.SET_NULL, blank=True, null=True)
     controle = models.ForeignKey(ControleModel, on_delete=models.SET_NULL, blank=True, null=True)
     conta = models.ForeignKey(ContaBancariaModel, on_delete=models.CASCADE)
+   
+    def __str__(self):
+        return self.nome
 
 class TransacaoRecorrenteModel(models.Model):
     quantia = models.FloatField(default=0)
@@ -51,3 +60,6 @@ class TransacaoRecorrenteModel(models.Model):
     categoria = models.ForeignKey(CategoriaModel, on_delete=models.SET_NULL, null=True)
     conta = models.ForeignKey(ContaBancariaModel, on_delete=models.CASCADE)
     pago_no_mes = models.BooleanField()
+
+    def __str__(self):
+        return self.nome

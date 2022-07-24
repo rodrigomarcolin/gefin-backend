@@ -18,6 +18,8 @@ from django.urls import path, include
 from rest_framework import routers
 from . import views
 
+app_name = 'corelogic'
+
 router = routers.DefaultRouter()
 router.register(r'users', views.UserViewSet)
 router.register(r'banco', views.BancoViewSet)
@@ -27,5 +29,6 @@ urlpatterns = [
     path('', include(router.urls)),
     path('contabanc/', views.ContaBancariaList.as_view()),
     path('contabanc/<int:pk>', views.ContaBancariaDetail.as_view()),
+    path('contabanc/<int:idconta>/transac', views.TransacaoList.as_view()),
     path('api-auth/', include('rest_framework.urls', namespace='rest_framework'))
 ]

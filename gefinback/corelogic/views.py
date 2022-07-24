@@ -48,6 +48,7 @@ class ContaBancariaList(mixins.ListModelMixin,
     serializer_class = ContaBancariaSerializer
     permission_classes = [permissions.IsAuthenticated]
 
+    # Retorna apenas as contas do usuário que fez o get
     def get(self, request, *args, **kwargs):
         if (request.user.is_anonymous):
             return HttpResponseForbidden()
@@ -89,3 +90,44 @@ class ContaBancariaDetail(mixins.RetrieveModelMixin,
     def delete(self, request, *args, **kwargs):
         return self.destroy(request, *args, **kwargs)
     
+
+####################################
+# Classes that deal with Transacao #
+####################################
+class TransacaoList(mixins.CreateModelMixin,
+                    mixins.ListModelMixin,
+                    generics.GenericAPIView):
+
+    """
+        This class provides endpoints to
+        create and retrieve transacoes
+        related to an account
+    """
+    queryset = TransacaoModel.objects.all()
+    serializer_class = TransacaoSerializer
+
+    def setup(self, request, idconta, *args, **kwargs):
+        self.idconta = idconta
+        try:
+            self.conta = ContaBancariaModel.objects.filter(id=self.idconta).first()
+        except ContaBancariaModel.DoesNotExist:
+            raise Http404
+
+        return super().setup(request, *args, **kwargs)
+
+    # Retorna apenas as transações da conta que está sendo observada
+    def get(self, request, *args, **kwargs):
+        try:
+            transacs = TransacaoModel.objects.filter(conta=self.conta)
+        except TransacaoModel.DoesNotExist:
+            raise Http404
+        
+        serializer = self.serializer_class(transacs, many=True, context={'request':request})
+
+        return Response(serializer.data)
+
+    def post(self, request, *args, **kwargs):
+        return self.create(request, *args, **kwargs)
+
+    def perform_create(self, serializer):
+        serializer.save(conta=self.conta)
