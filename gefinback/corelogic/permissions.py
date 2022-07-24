@@ -28,8 +28,16 @@ class ContaBelongsToUser(permissions.BasePermission):
     """
     def has_permission(self, request, view):
         try:
-            dono = ContaBancariaModel.objects.filter(id=view.idconta).first().dono
+            conta = ContaBancariaModel.objects.filter(id=view.idconta).first()
         except:
             return False
         
-        return dono == request.user
+        return conta.dono == request.user 
+
+    def has_object_permission(self, request, view, obj):
+        try:
+            conta = ContaBancariaModel.objects.filter(id=view.idconta).first()
+        except:
+            return False
+        
+        return obj.conta == conta and conta.dono == request.user 

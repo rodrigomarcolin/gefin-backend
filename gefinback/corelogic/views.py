@@ -128,7 +128,43 @@ class TransacaoList(mixins.CreateModelMixin,
         return Response(serializer.data)
 
     def post(self, request, *args, **kwargs):
+        self.conta.quantia += float(request.data['quantia'])
+        self.conta.save()
         return self.create(request, *args, **kwargs)
 
     def perform_create(self, serializer):
         serializer.save(conta=self.conta)
+
+class TransacaoDetail(mixins.RetrieveModelMixin,
+                      mixins.DestroyModelMixin,
+                      mixins.UpdateModelMixin,
+                      generics.GenericAPIView):
+    """
+        This class provides endpoints to
+        detail, delete and update transacos
+    """
+    queryset = TransacaoModel.objects.all()
+    serializer_class = TransacaoSerializer
+    permission_classes = [permissions.IsAuthenticated, ContaBelongsToUser]
+
+    def setup(self, request, idconta, *args, **kwargs):
+        self.idconta = idconta
+        try:
+            self.conta = ContaBancariaModel.objects.filter(id=self.idconta).first()
+        except ContaBancariaModel.DoesNotExist:
+            raise Http404
+
+        return super().setup(request, *args, **kwargs)
+    
+    def get(self, request, *args, **kwargs):
+        return self.retrieve(request, *args, **kwargs)
+
+    def put(self, request, *args, **kwargs):
+        
+        return self.update(request, *args, **kwargs)
+
+    def delete(self, request, *args, **kwargs):
+        transac = TransacaoModel.objects.filter(id=kwargs['pk']).first()
+        self.conta.quantia -= transac.quantia
+        self.conta.save()
+        return self.destroy(request, *args, **kwargs)
