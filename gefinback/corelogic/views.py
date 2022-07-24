@@ -160,7 +160,9 @@ class TransacaoDetail(mixins.RetrieveModelMixin,
         return self.retrieve(request, *args, **kwargs)
 
     def put(self, request, *args, **kwargs):
-        
+        transac = TransacaoModel.objects.filter(id=kwargs['pk']).first()
+        self.conta.quantia += float(request.data['quantia']) - transac.quantia
+        self.conta.save()
         return self.update(request, *args, **kwargs)
 
     def delete(self, request, *args, **kwargs):
