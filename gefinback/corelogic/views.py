@@ -5,6 +5,7 @@ from rest_framework import viewsets, permissions, mixins, generics
 from rest_framework.response import Response
 from .permissions import IsOwner, IsAdminUserOrReadOnly, ContaBelongsToUser
 from .serializers import *
+import datetime
 
 class UserViewSet(viewsets.ModelViewSet):
     """
@@ -122,8 +123,13 @@ class TransacaoList(mixins.CreateModelMixin,
 
     # Retorna apenas as transações da conta que está sendo observada
     def get(self, request, *args, **kwargs):
+        today = datetime.date.today()
         try:
-            transacs = TransacaoModel.objects.filter(conta=self.conta)
+            # se tem param all, retorna todos de qualquer mês
+            if (request.GET.get('all', False) == False):
+                transacs = TransacaoModel.objects.filter(conta=self.conta, data__month=today.month, data__year=today.year)
+            else:
+                transacs = TransacaoModel.objects.filter(conta=self.conta)
         except TransacaoModel.DoesNotExist:
             raise Http404
         
@@ -179,4 +185,87 @@ class TransacaoDetail(mixins.RetrieveModelMixin,
         transac = TransacaoModel.objects.filter(id=kwargs['pk']).first()
         self.conta.quantia -= transac.quantia
         self.conta.save()
+        return self.destroy(request, *args, **kwargs)
+
+##############################################
+# Classes that deal with TransacaoRecorrente #
+##############################################
+
+class TransacaoRecorrenteList(mixins.CreateModelMixin,
+                              mixins.ListModelMixin,
+                              generics.GenericAPIView):
+
+    queryset = TransacaoRecorrenteModel.objects.all()
+    serializer_class = TransacaoRecorrenteSerializer
+    permission_classes = [permissions.IsAuthenticated, ContaBelongsToUser]
+
+    """
+        This class provides endpoints for 
+        creating and retrieving transacores recorrentes
+    """
+    def setup(self, request, idconta, *args, **kwargs):
+        self.idconta = idconta
+        try:
+            self.conta = ContaBancariaModel.objects.filter(id=self.idconta).first()
+        except ContaBancariaModel.DoesNotExist:
+            raise Http404
+
+        return super().setup(request, *args, **kwargs)
+
+    # Retorna apenas as transações recorrentes da conta que está sendo observada
+    def get(self, request, *args, **kwargs):
+
+        try:
+            # Se tem param notpaid, retorna somente os que pago_no_mes=false
+            if (request.GET.get('notpaid', False) == False):
+                transacs = TransacaoRecorrenteModel.objects.filter(conta=self.conta)
+            else:
+                transacs = TransacaoRecorrenteModel.objects.filter(conta=self.conta, pago_no_mes=False)
+        except TransacaoRecorrenteModel.DoesNotExist:
+            raise Http404
+        
+        serializer = self.serializer_class(transacs, many=True, context={'request':request})
+
+        return Response(serializer.data)
+    
+    def post(self, request, *args, **kwargs):
+        return self.create(request, *args, **kwargs)
+
+    def perform_create(self, serializer):
+        serializer.save(conta=self.conta)
+
+class TransacaoRecorrenteDetail(mixins.RetrieveModelMixin,
+                                mixins.DestroyModelMixin,
+                                mixins.UpdateModelMixin,
+                                generics.GenericAPIView):
+    
+    """
+        This class provides endpoits for 
+        viewing detail, deleting and updating transacoes recorrentes
+    """
+
+    queryset = TransacaoRecorrenteModel.objects.all()
+    serializer_class = TransacaoRecorrenteSerializer
+    permission_classes = [permissions.IsAuthenticated, ContaBelongsToUser]
+
+    def setup(self, request, idconta, *args, **kwargs):
+        self.idconta = idconta
+        try:
+            self.conta = ContaBancariaModel.objects.filter(id=self.idconta).first()
+        except ContaBancariaModel.DoesNotExist:
+            raise Http404
+
+        return super().setup(request, *args, **kwargs)
+
+    def get(self, request, *args, **kwargs):
+        return self.retrieve(request, *args, **kwargs)
+
+    # Ao atualizar o valor de uma transação, atualiza-se
+    # a quantia na conta associada a ela
+    def put(self, request, *args, **kwargs):
+        return self.update(request, *args, **kwargs)
+
+    # Ao deletar-se uma transação, subtrai seu valor
+    # da conta associada a ela
+    def delete(self, request, *args, **kwargs):
         return self.destroy(request, *args, **kwargs)

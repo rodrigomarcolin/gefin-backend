@@ -34,4 +34,10 @@ class TransacaoSerializer(serializers.ModelSerializer):
     conta = serializers.ReadOnlyField(source="conta.id")
     class Meta:
         model = TransacaoModel
-        fields = ['id', 'quantia', 'nome', 'categoria', 'controle', 'conta']
+        fields = ['id', 'quantia', 'nome', 'categoria', 'controle', 'conta', 'data']
+
+class TransacaoRecorrenteSerializer(serializers.ModelSerializer):
+    conta = serializers.ReadOnlyField(source="conta.id")
+    class Meta:
+        model = TransacaoRecorrenteModel
+        fields = ['id', 'nome', 'quantia', 'categoria', 'conta', 'pago_no_mes']

@@ -29,5 +29,7 @@ urlpatterns = [
     path('contabanc/<int:pk>', views.ContaBancariaDetail.as_view()),
     path('contabanc/<int:idconta>/transac', views.TransacaoList.as_view()),
     path('contabanc/<int:idconta>/transac/<int:pk>', views.TransacaoDetail.as_view()),
+    path('contabanc/<int:idconta>/transac_reco', views.TransacaoRecorrenteList.as_view()),
+    path('contabanc/<int:idconta>/transac_reco/<int:pk>', views.TransacaoRecorrenteDetail.as_view()),
     path('api-auth/', include('rest_framework.urls', namespace='rest_framework')),
 ]
