@@ -25,5 +25,7 @@ router.register(r'categoria', views.CategoriaViewSet)
 
 urlpatterns = [
     path('', include(router.urls)),
+    path('contabanc/', views.ContaBancariaList.as_view()),
+    path('contabanc/<int:pk>', views.ContaBancariaDetail.as_view()),
     path('api-auth/', include('rest_framework.urls', namespace='rest_framework'))
 ]

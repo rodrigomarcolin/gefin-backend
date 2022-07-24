@@ -3,31 +3,34 @@ from .models import *
 from rest_framework import serializers
 
 class UserSerializer(serializers.HyperlinkedModelSerializer):
+    contas = serializers.PrimaryKeyRelatedField(many=True, queryset=ContaBancariaModel.objects.all())
+    
     class Meta:
         model = User
-        fields = ['url', 'username', 'email']
+        fields = ['url', 'username', 'email', 'contas']
 
 class BancoSerializer(serializers.HyperlinkedModelSerializer):
     class Meta:
         model = BancoModel
-        fields = ['nome']
+        fields = ['id', 'nome']
     
 class CategoriaSerializer(serializers.HyperlinkedModelSerializer):
     class Meta:
         model = CategoriaModel
-        fields = ['nome']
+        fields = ['id', 'nome']
 
 class ContaBancariaSerializer(serializers.HyperlinkedModelSerializer):
+    dono = serializers.ReadOnlyField(source='dono.username')
     class Meta:
         model = ContaBancariaModel
-        fields = ['quantia', 'nome', 'desc', 'dono', 'banco']
+        fields = ['id', 'quantia', 'nome', 'desc', 'dono', 'banco']
 
 class ControleSerializer(serializers.HyperlinkedModelSerializer):
     class Meta:
         model = ControleModel
-        fields = ['nome', 'desc', 'quantia', 'conta', 'data', 'gasto', 'tipoGasto', 'recorrente']
+        fields = ['id', 'nome', 'desc', 'quantia', 'conta', 'data', 'gasto', 'tipoGasto', 'recorrente']
 
 class TransacaoSerializer(serializers.HyperlinkedModelSerializer):
     class Meta:
         model = TransacaoModel
-        fields = ['quantia', 'nome', 'categoria', 'conta', 'pago_no_mes']
+        fields = ['id', 'quantia', 'nome', 'categoria', 'conta', 'pago_no_mes']

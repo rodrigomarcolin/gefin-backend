@@ -5,14 +5,26 @@ from django.contrib.auth.models import User
 class BancoModel(models.Model):
     nome = models.CharField(max_length=200)
 
+    def __str__(self):
+        return self.nome
+
+    class Meta:
+        ordering = ['nome']
+
 class CategoriaModel(models.Model):
     nome = models.CharField(max_length=200)
+    
+    def __str__(self):
+        return self.nome
+
+    class Meta:
+        ordering = ['nome']
 
 class ContaBancariaModel(models.Model):
     quantia = models.FloatField(default=0)
     nome = models.CharField(max_length=200)
     desc = models.CharField(max_length=512)
-    dono = models.ForeignKey(User, on_delete=models.CASCADE)
+    dono = models.ForeignKey(User, on_delete=models.CASCADE, related_name='contas')
     banco = models.ForeignKey(BancoModel, on_delete=models.SET_NULL, blank=True, null=True)
 
 class ControleModel(models.Model):
