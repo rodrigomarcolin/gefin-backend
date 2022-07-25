@@ -269,3 +269,85 @@ class TransacaoRecorrenteDetail(mixins.RetrieveModelMixin,
     # da conta associada a ela
     def delete(self, request, *args, **kwargs):
         return self.destroy(request, *args, **kwargs)
+
+##############################################
+# Classes that deal with Controle #
+##############################################
+
+class ControleList(mixins.CreateModelMixin,
+                              mixins.ListModelMixin,
+                              generics.GenericAPIView):
+
+    queryset = ControleModel.objects.all()
+    serializer_class = ControleSerializer
+    permission_classes = [permissions.IsAuthenticated, ContaBelongsToUser]
+
+    """
+        This class provides endpoints for 
+        creating and retrieving transacores recorrentes
+    """
+    def setup(self, request, idconta, *args, **kwargs):
+        self.idconta = idconta
+        try:
+            self.conta = ContaBancariaModel.objects.filter(id=self.idconta).first()
+        except ContaBancariaModel.DoesNotExist:
+            raise Http404
+
+        return super().setup(request, *args, **kwargs)
+
+    # Retorna apenas as transações recorrentes da conta que está sendo observada
+    def get(self, request, *args, **kwargs):
+        today = datetime.date.today()
+        try:
+            if (request.GET.get('all', False) == False):
+                controles = ControleModel.objects.filter(conta=self.conta, data__month=today.month, data__year=today.year)
+            else:
+                controles = ControleModel.objects.filter(conta=self.conta)
+        except ControleModel.DoesNotExist:
+            raise Http404
+        
+        serializer = self.serializer_class(controles, many=True, context={'request':request})
+
+        return Response(serializer.data)
+    
+    def post(self, request, *args, **kwargs):
+        return self.create(request, *args, **kwargs)
+
+    def perform_create(self, serializer):
+        serializer.save(conta=self.conta)
+
+class ControleDetail(mixins.RetrieveModelMixin,
+                                mixins.DestroyModelMixin,
+                                mixins.UpdateModelMixin,
+                                generics.GenericAPIView):
+    
+    """
+        This class provides endpoits for 
+        viewing detail, deleting and updating transacoes recorrentes
+    """
+
+    queryset = ControleModel.objects.all()
+    serializer_class = ControleSerializer
+    permission_classes = [permissions.IsAuthenticated, ContaBelongsToUser]
+
+    def setup(self, request, idconta, *args, **kwargs):
+        self.idconta = idconta
+        try:
+            self.conta = ContaBancariaModel.objects.filter(id=self.idconta).first()
+        except ContaBancariaModel.DoesNotExist:
+            raise Http404
+
+        return super().setup(request, *args, **kwargs)
+
+    def get(self, request, *args, **kwargs):
+        return self.retrieve(request, *args, **kwargs)
+
+    # Ao atualizar o valor de uma transação, atualiza-se
+    # a quantia na conta associada a ela
+    def put(self, request, *args, **kwargs):
+        return self.update(request, *args, **kwargs)
+
+    # Ao deletar-se uma transação, subtrai seu valor
+    # da conta associada a ela
+    def delete(self, request, *args, **kwargs):
+        return self.destroy(request, *args, **kwargs)

@@ -23,7 +23,7 @@ class CategoriaModel(models.Model):
 class ContaBancariaModel(models.Model):
     quantia = models.FloatField(default=0)
     nome = models.CharField(max_length=200)
-    desc = models.CharField(max_length=512)
+    desc = models.CharField(max_length=512, blank=True, null=True)
     dono = models.ForeignKey(User, on_delete=models.CASCADE, related_name='contas')
     banco = models.ForeignKey(BancoModel, on_delete=models.SET_NULL, blank=True, null=True)
 
@@ -32,13 +32,13 @@ class ContaBancariaModel(models.Model):
 
 class ControleModel(models.Model):
     nome = models.CharField(max_length=200)
-    desc = models.CharField(max_length=512)
+    desc = models.CharField(max_length=512, blank=True, null=True)
     quantia = models.FloatField(default = 0)
     conta = models.ForeignKey(ContaBancariaModel, on_delete=models.CASCADE)
     data = models.DateField(auto_now_add=True)
-    gasto = models.FloatField(default=0)
-    tipoGasto = models.BooleanField()
-    recorrente = models.BooleanField()
+    gasto = models.FloatField(default=0, blank=True, null=True)
+    tipoGasto = models.BooleanField(default=True, blank=True, null=True)
+    recorrente = models.BooleanField(default=False, blank=True, null=True)
  
     def __str__(self):
         return self.nome
