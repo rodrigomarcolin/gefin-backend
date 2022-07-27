@@ -7,13 +7,6 @@ from .permissions import IsOwner, IsAdminUserOrReadOnly, ContaBelongsToUser
 from .serializers import *
 import datetime
 
-class UserViewSet(viewsets.ModelViewSet):
-    """
-    API endpoint that allows users to be viewed or edited.
-    """
-    queryset = User.objects.all().order_by('-date_joined')
-    serializer_class = UserSerializer
-
 class BancoViewSet(viewsets.ModelViewSet):
     """
     API endpoint that allows bancos to be viewed or edited

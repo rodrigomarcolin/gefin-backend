@@ -40,7 +40,16 @@ INSTALLED_APPS = [
     'django.contrib.staticfiles',
     'corelogic',
     'rest_framework',
+    'rest_framework.authtoken',
+    'djoser'
 ]
+
+
+REST_FRAMEWORK = {
+   'DEFAULT_AUTHENTICATION_CLASSES': (
+       'rest_framework.authentication.TokenAuthentication',
+   )
+}
 
 MIDDLEWARE = [
     'django.middleware.security.SecurityMiddleware',

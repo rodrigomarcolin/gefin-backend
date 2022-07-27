@@ -19,7 +19,6 @@ from rest_framework import routers
 from . import views
 
 router = routers.DefaultRouter()
-router.register(r'users', views.UserViewSet)
 router.register(r'banco', views.BancoViewSet)
 router.register(r'categoria', views.CategoriaViewSet)
 
@@ -33,5 +32,4 @@ urlpatterns = [
     path('contabanc/<int:idconta>/transac_reco/<int:pk>', views.TransacaoRecorrenteDetail.as_view()),
     path('contabanc/<int:idconta>/controle', views.ControleList.as_view()),
     path('contabanc/<int:idconta>/controle/<int:pk>', views.ControleDetail.as_view()),
-    path('api-auth/', include('rest_framework.urls', namespace='rest_framework')),
 ]

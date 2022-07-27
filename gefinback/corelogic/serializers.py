@@ -2,13 +2,6 @@ from django.contrib.auth.models import User, Group
 from .models import *
 from rest_framework import serializers
 
-class UserSerializer(serializers.ModelSerializer):
-    contas = serializers.PrimaryKeyRelatedField(many=True, queryset=ContaBancariaModel.objects.all())
-    
-    class Meta:
-        model = User
-        fields = ['username', 'email', 'contas']
-
 class BancoSerializer(serializers.ModelSerializer):
     class Meta:
         model = BancoModel

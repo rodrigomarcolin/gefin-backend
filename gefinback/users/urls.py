@@ -17,7 +17,6 @@ from django.contrib import admin
 from django.urls import include, path
 
 urlpatterns = [
-    path('admin/', admin.site.urls),
-    path('api/', include('corelogic.urls')),
-    path('auth/', include('users.urls')),
+    path('', include('djoser.urls')),
+    path('', include('djoser.urls.authtoken')),
 ]
