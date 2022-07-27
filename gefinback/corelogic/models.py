@@ -3,7 +3,7 @@ from django.contrib.auth.models import User
 # Create your models here.
 
 class BancoModel(models.Model):
-    nome = models.CharField(max_length=200)
+    nome = models.CharField(max_length=200, unique=True)
 
     def __str__(self):
         return self.nome
@@ -12,7 +12,7 @@ class BancoModel(models.Model):
         ordering = ['nome']
 
 class CategoriaModel(models.Model):
-    nome = models.CharField(max_length=200)
+    nome = models.CharField(max_length=200, unique=True)
     
     def __str__(self):
         return self.nome
@@ -30,6 +30,9 @@ class ContaBancariaModel(models.Model):
     def __str__(self):
         return self.dono.__str__() + ": " + self.nome
 
+    class Meta:
+        unique_together = [['dono', 'nome']]
+
 class ControleModel(models.Model):
     nome = models.CharField(max_length=200)
     desc = models.CharField(max_length=512, blank=True, null=True)
@@ -42,6 +45,9 @@ class ControleModel(models.Model):
  
     def __str__(self):
         return self.nome
+
+    class Meta:
+        unique_together = [['conta', 'nome']]
 
 class TransacaoModel(models.Model):
     quantia = models.FloatField(default=0)

@@ -138,10 +138,20 @@ class TransacaoList(mixins.CreateModelMixin,
         return Response(serializer.data)
 
     # Ao criar uma transação, adiciona o valor dela à quantia
-    # na conta associada
+    # na conta e controle associada
     def post(self, request, *args, **kwargs):
-        self.conta.quantia += float(request.data['quantia'])
-        self.conta.save()
+        quantia = float(request.data.get('quantia', None))
+        controle_id = request.data.get('controle', None)
+        
+        if (quantia != None): 
+            self.conta.quantia += quantia
+            self.conta.save()
+
+            if (controle_id):
+                controle = ControleModel.objects.filter(id=controle_id).first()
+                controle.gasto += quantia
+                controle.save()
+        
         return self.create(request, *args, **kwargs)
 
     def perform_create(self, serializer):
@@ -175,16 +185,43 @@ class TransacaoDetail(mixins.RetrieveModelMixin,
     # a quantia na conta associada a ela
     def put(self, request, *args, **kwargs):
         transac = TransacaoModel.objects.filter(id=kwargs['pk']).first()
-        self.conta.quantia += float(request.data['quantia']) - transac.quantia
-        self.conta.save()
+        quantia = float(request.data.get('quantia', None))
+        old_controle_id = transac.controle_id
+
+        # VelhoControle.gasto -= Transac.velhaQuantia
+        if (old_controle_id != None):
+            old_controle = ControleModel.objects.filter(id=old_controle_id).first()
+            old_controle.gasto -= transac.quantia
+            old_controle.save()
+        # Novo Controle
+        controle_id = request.data.get('controle', None)
+        
+        if (quantia != None): 
+            self.conta.quantia += quantia - transac.quantia
+            self.conta.save()
+
+            # NovoControle.gasto += Transac.NovaQuantia
+            if (controle_id):
+                controle = ControleModel.objects.filter(id=controle_id).first()
+                controle.gasto += quantia
+                controle.save()
+
         return self.update(request, *args, **kwargs)
 
     # Ao deletar-se uma transação, subtrai seu valor
     # da conta associada a ela
     def delete(self, request, *args, **kwargs):
         transac = TransacaoModel.objects.filter(id=kwargs['pk']).first()
+        controle_id = transac.controle_id
+    
         self.conta.quantia -= transac.quantia
         self.conta.save()
+
+        if (controle_id):
+            controle = ControleModel.objects.filter(id=controle_id).first()
+            controle.gasto -= transac.quantia
+            controle.save()
+
         return self.destroy(request, *args, **kwargs)
 
 ##############################################

@@ -26,6 +26,7 @@ class ContaBancariaSerializer(serializers.ModelSerializer):
         fields = ['id', 'quantia', 'nome', 'desc', 'dono', 'banco']
 
 class ControleSerializer(serializers.ModelSerializer):
+    conta = serializers.ReadOnlyField(source='conta.id')
     class Meta:
         model = ControleModel
         fields = ['id', 'nome', 'desc', 'quantia', 'conta', 'data', 'gasto', 'tipoGasto', 'recorrente']
