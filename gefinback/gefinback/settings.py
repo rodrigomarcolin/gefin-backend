@@ -41,7 +41,8 @@ INSTALLED_APPS = [
     'corelogic',
     'rest_framework',
     'rest_framework.authtoken',
-    'djoser'
+    'djoser',
+    'corsheaders'
 ]
 
 
@@ -52,6 +53,7 @@ REST_FRAMEWORK = {
 }
 
 MIDDLEWARE = [
+    "corsheaders.middleware.CorsMiddleware",
     'django.middleware.security.SecurityMiddleware',
     'django.contrib.sessions.middleware.SessionMiddleware',
     'django.middleware.common.CommonMiddleware',
@@ -59,7 +61,12 @@ MIDDLEWARE = [
     'django.contrib.auth.middleware.AuthenticationMiddleware',
     'django.contrib.messages.middleware.MessageMiddleware',
     'django.middleware.clickjacking.XFrameOptionsMiddleware',
+    'django.middleware.common.CommonMiddleware',
 ]
+
+CORS_ORIGIN_ALLOW_ALL = True
+
+CSRF_COOKIE_NAME = "csrftoken"
 
 ROOT_URLCONF = 'gefinback.urls'
 
