@@ -1,1 +1,4 @@
 env/
+*.cpython
+*.sqlite3
+*.cpython*
