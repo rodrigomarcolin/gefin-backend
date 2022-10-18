@@ -1,6 +1,6 @@
 # Backend - Gefin
 
-No termina:
+No terminal:
 
 1. Instale um gerenciador de ambientes virtuais para python (usarei o virtualenv como exemplo)
 1. Crie um ambiente virtual: `virtualenv env`
