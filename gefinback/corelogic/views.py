@@ -131,19 +131,19 @@ class TransacaoList(mixins.CreateModelMixin,
         return Response(serializer.data)
 
     # Ao criar uma transação, adiciona o valor dela à quantia
-    # na conta e controle associada
+    # na conta e objetivo associada
     def post(self, request, *args, **kwargs):
         quantia = float(request.data.get('quantia', None))
-        controle_id = request.data.get('controle', None)
+        objetivo_id = request.data.get('objetivo', None)
         
         if (quantia != None): 
             self.conta.quantia += quantia
             self.conta.save()
 
-            if (controle_id):
-                controle = ControleModel.objects.filter(id=controle_id).first()
-                controle.gasto += quantia
-                controle.save()
+            if (objetivo_id):
+                objetivo = ObjetivoModel.objects.filter(id=objetivo_id).first()
+                objetivo.gasto += quantia
+                objetivo.save()
         
         return self.create(request, *args, **kwargs)
 
@@ -179,25 +179,25 @@ class TransacaoDetail(mixins.RetrieveModelMixin,
     def put(self, request, *args, **kwargs):
         transac = TransacaoModel.objects.filter(id=kwargs['pk']).first()
         quantia = float(request.data.get('quantia', None))
-        old_controle_id = transac.controle_id
+        old_objetivo_id = transac.objetivo_id
 
-        # VelhoControle.gasto -= Transac.velhaQuantia
-        if (old_controle_id != None):
-            old_controle = ControleModel.objects.filter(id=old_controle_id).first()
-            old_controle.gasto -= transac.quantia
-            old_controle.save()
-        # Novo Controle
-        controle_id = request.data.get('controle', None)
+        # Velhoobjetivo.gasto -= Transac.velhaQuantia
+        if (old_objetivo_id != None):
+            old_objetivo = ObjetivoModel.objects.filter(id=old_objetivo_id).first()
+            old_objetivo.gasto -= transac.quantia
+            old_objetivo.save()
+        # Novo objetivo
+        objetivo_id = request.data.get('objetivo', None)
         
         if (quantia != None): 
             self.conta.quantia += quantia - transac.quantia
             self.conta.save()
 
-            # NovoControle.gasto += Transac.NovaQuantia
-            if (controle_id):
-                controle = ControleModel.objects.filter(id=controle_id).first()
-                controle.gasto += quantia
-                controle.save()
+            # Novoobjetivo.gasto += Transac.NovaQuantia
+            if (objetivo_id):
+                objetivo = ObjetivoModel.objects.filter(id=objetivo_id).first()
+                objetivo.gasto += quantia
+                objetivo.save()
 
         return self.update(request, *args, **kwargs)
 
@@ -205,15 +205,15 @@ class TransacaoDetail(mixins.RetrieveModelMixin,
     # da conta associada a ela
     def delete(self, request, *args, **kwargs):
         transac = TransacaoModel.objects.filter(id=kwargs['pk']).first()
-        controle_id = transac.controle_id
+        objetivo_id = transac.objetivo_id
     
         self.conta.quantia -= transac.quantia
         self.conta.save()
 
-        if (controle_id):
-            controle = ControleModel.objects.filter(id=controle_id).first()
-            controle.gasto -= transac.quantia
-            controle.save()
+        if (objetivo_id):
+            objetivo = ObjetivoModel.objects.filter(id=objetivo_id).first()
+            objetivo.gasto -= transac.quantia
+            objetivo.save()
 
         return self.destroy(request, *args, **kwargs)
 
@@ -301,15 +301,15 @@ class TransacaoRecorrenteDetail(mixins.RetrieveModelMixin,
         return self.destroy(request, *args, **kwargs)
 
 ##############################################
-# Classes that deal with Controle #
+# Classes that deal with Objetivo #
 ##############################################
 
-class ControleList(mixins.CreateModelMixin,
+class ObjetivoList(mixins.CreateModelMixin,
                               mixins.ListModelMixin,
                               generics.GenericAPIView):
 
-    queryset = ControleModel.objects.all()
-    serializer_class = ControleSerializer
+    queryset = ObjetivoModel.objects.all()
+    serializer_class = ObjetivoSerializer
     permission_classes = [permissions.IsAuthenticated, ContaBelongsToUser]
 
     """
@@ -325,18 +325,14 @@ class ControleList(mixins.CreateModelMixin,
 
         return super().setup(request, *args, **kwargs)
 
-    # Retorna apenas as transações recorrentes da conta que está sendo observada
     def get(self, request, *args, **kwargs):
         today = datetime.date.today()
         try:
-            if (request.GET.get('all', False) == False):
-                controles = ControleModel.objects.filter(conta=self.conta, data__month=today.month, data__year=today.year)
-            else:
-                controles = ControleModel.objects.filter(conta=self.conta)
-        except ControleModel.DoesNotExist:
+            objetivos = ObjetivoModel.objects.filter(conta=self.conta)
+        except ObjetivoModel.DoesNotExist:
             raise Http404
         
-        serializer = self.serializer_class(controles, many=True, context={'request':request})
+        serializer = self.serializer_class(objetivos, many=True, context={'request':request})
 
         return Response(serializer.data)
     
@@ -346,7 +342,7 @@ class ControleList(mixins.CreateModelMixin,
     def perform_create(self, serializer):
         serializer.save(conta=self.conta)
 
-class ControleDetail(mixins.RetrieveModelMixin,
+class ObjetivoDetail(mixins.RetrieveModelMixin,
                                 mixins.DestroyModelMixin,
                                 mixins.UpdateModelMixin,
                                 generics.GenericAPIView):
@@ -356,8 +352,8 @@ class ControleDetail(mixins.RetrieveModelMixin,
         viewing detail, deleting and updating transacoes recorrentes
     """
 
-    queryset = ControleModel.objects.all()
-    serializer_class = ControleSerializer
+    queryset = ObjetivoModel.objects.all()
+    serializer_class = ObjetivoSerializer
     permission_classes = [permissions.IsAuthenticated, ContaBelongsToUser]
 
     def setup(self, request, idconta, *args, **kwargs):
@@ -372,12 +368,8 @@ class ControleDetail(mixins.RetrieveModelMixin,
     def get(self, request, *args, **kwargs):
         return self.retrieve(request, *args, **kwargs)
 
-    # Ao atualizar o valor de uma transação, atualiza-se
-    # a quantia na conta associada a ela
     def put(self, request, *args, **kwargs):
         return self.update(request, *args, **kwargs)
 
-    # Ao deletar-se uma transação, subtrai seu valor
-    # da conta associada a ela
     def delete(self, request, *args, **kwargs):
         return self.destroy(request, *args, **kwargs)

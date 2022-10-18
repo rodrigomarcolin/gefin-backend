@@ -43,16 +43,17 @@ class ContaBancariaModel(models.Model):
     class Meta:
         unique_together = [['dono', 'nome']]
 
-class ControleModel(models.Model):
+class ObjetivoModel(models.Model):
     nome = models.CharField(max_length=200)
     desc = models.CharField(max_length=512, blank=True, null=True)
-    quantia = models.FloatField(default = 0)
+    quantia_meta = models.FloatField(default = 0)
     conta = models.ForeignKey(ContaBancariaModel, on_delete=models.CASCADE)
-    data = models.DateField(auto_now_add=True)
-    gasto = models.FloatField(default=0, blank=True, null=True)
-    tipoGasto = models.BooleanField(default=True, blank=True, null=True)
-    recorrente = models.BooleanField(default=False, blank=True, null=True)
- 
+    data_criacao = models.DateField(auto_now_add=True)
+    quantia_aplicada = models.FloatField(default=0, blank=True, null=True)    
+    ultima_aplicacao = models.DateField(blank=True, null=True)
+    prazo = models.DateField(blank=True, null=True)
+    completado = models.BooleanField(default=False)
+    
     def __str__(self):
         return self.nome
 
@@ -64,7 +65,7 @@ class TransacaoModel(models.Model):
     nome = models.CharField(max_length=200)
     data = models.DateField(auto_now_add=True)
     categoria = models.ForeignKey(CategoriaModel, on_delete=models.SET_NULL, blank=True, null=True)
-    controle = models.ForeignKey(ControleModel, on_delete=models.SET_NULL, blank=True, null=True)
+    objetivo = models.ForeignKey(ObjetivoModel, on_delete=models.SET_NULL, blank=True, null=True)
     conta = models.ForeignKey(ContaBancariaModel, on_delete=models.CASCADE)
    
     def __str__(self):
