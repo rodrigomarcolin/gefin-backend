@@ -18,17 +18,17 @@ class ContaBancariaSerializer(serializers.ModelSerializer):
         model = ContaBancariaModel
         fields = ['id', 'quantia', 'nome', 'desc', 'dono', 'banco']
 
-class ControleSerializer(serializers.ModelSerializer):
+class ObjetivoSerializer(serializers.ModelSerializer):
     conta = serializers.ReadOnlyField(source='conta.id')
     class Meta:
-        model = ControleModel
-        fields = ['id', 'nome', 'desc', 'quantia', 'conta', 'data', 'gasto', 'tipoGasto', 'recorrente']
+        model = ObjetivoModel
+        fields = ['id', 'nome', 'desc', 'quantia_meta', 'conta', 'data_criacao', 'quantia_aplicada', 'prazo', 'completado']
 
 class TransacaoSerializer(serializers.ModelSerializer):
     conta = serializers.ReadOnlyField(source="conta.id")
     class Meta:
         model = TransacaoModel
-        fields = ['id', 'quantia', 'nome', 'categoria', 'controle', 'conta', 'data']
+        fields = ['id', 'quantia', 'nome', 'categoria', 'objetivo', 'conta', 'data']
 
 class TransacaoRecorrenteSerializer(serializers.ModelSerializer):
     conta = serializers.ReadOnlyField(source="conta.id")

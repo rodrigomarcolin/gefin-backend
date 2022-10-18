@@ -30,6 +30,6 @@ urlpatterns = [
     path('contabanc/<int:idconta>/transac/<int:pk>', views.TransacaoDetail.as_view()),
     path('contabanc/<int:idconta>/transac_reco', views.TransacaoRecorrenteList.as_view()),
     path('contabanc/<int:idconta>/transac_reco/<int:pk>', views.TransacaoRecorrenteDetail.as_view()),
-    path('contabanc/<int:idconta>/controle', views.ControleList.as_view()),
-    path('contabanc/<int:idconta>/controle/<int:pk>', views.ControleDetail.as_view()),
+    path('contabanc/<int:idconta>/objetivo', views.ObjetivoList.as_view()),
+    path('contabanc/<int:idconta>/objetivo/<int:pk>', views.ObjetivoDetail.as_view()),
 ]
