@@ -42,7 +42,7 @@ class Transacao(models.Model):
     nome = models.CharField(max_length=200)
     data = models.DateField(auto_now_add=True)
     categoria = models.ForeignKey(CategoriaTransacao, on_delete=models.SET_NULL, blank=True, null=True)
-    conta = models.ForeignKey(ContaBancaria, on_delete=models.CASCADE)
+    conta = models.ForeignKey(ContaBancaria, on_delete=models.CASCADE, related_name='transacoes')
    
     def __str__(self):
         return self.nome

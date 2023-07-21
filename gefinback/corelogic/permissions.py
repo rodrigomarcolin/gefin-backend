@@ -27,9 +27,9 @@ class ContaBelongsToUser(permissions.BasePermission):
         Permite a operação se o usuário for dono da conta
     """
     def has_permission(self, request, view):
-        conta = request.user.contas.get(id=view.idconta)
+        conta = request.user.contas.filter(id=view.kwargs.get('idconta')).first()
         return conta is not None
 
     def has_object_permission(self, request, view, obj):
-        conta = request.user.contas.get(id=obj.id)
+        conta = request.user.contas.filter(id=obj.id).first()
         return conta is not None

@@ -4,3 +4,4 @@ env/
 *.cpython*
 .vscode
 migrations
+db.sqlite3

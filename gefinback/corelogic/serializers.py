@@ -22,4 +22,4 @@ class TransacaoSerializer(serializers.ModelSerializer):
     conta = serializers.ReadOnlyField(source="conta.id")
     class Meta:
         model = Transacao
-        fields = ['id', 'quantia', 'nome', 'categoria', 'objetivo', 'conta', 'data']
+        fields = ['id', 'quantia', 'nome', 'categoria', 'conta', 'data']
