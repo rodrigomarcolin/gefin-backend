@@ -46,3 +46,15 @@ class Transacao(models.Model):
    
     def __str__(self):
         return self.nome
+    
+
+
+    # Ao adicionar ou atualizar uma Transação, ajusta o saldo da conta à qual ela pertence
+    def save(self, *args, **kwargs):
+        old_transacao = Transacao.objects.filter(id=self.id).first()
+        old_transacao_quantia = 0 if old_transacao is None else old_transacao.quantia
+
+        conta = self.conta
+        conta.saldo = conta.saldo - old_transacao_quantia + self.quantia
+        conta.save()
+        super().save(*args, **kwargs)

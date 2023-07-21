@@ -31,5 +31,5 @@ class ContaBelongsToUser(permissions.BasePermission):
         return conta is not None
 
     def has_object_permission(self, request, view, obj):
-        conta = request.user.contas.filter(id=obj.id).first()
+        conta = request.user.contas.filter(id=view.kwargs.get('idconta')).first()
         return conta is not None
