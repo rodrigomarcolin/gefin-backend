@@ -24,12 +24,8 @@ router.register(r'categoria', views.CategoriaViewSet)
 
 urlpatterns = [
     path('', include(router.urls)),
-    path('contabanc/', views.ContaBancariaList.as_view()),
-    path('contabanc/<int:pk>', views.ContaBancariaDetail.as_view()),
-    path('contabanc/<int:idconta>/transac', views.TransacaoList.as_view()),
-    path('contabanc/<int:idconta>/transac/<int:pk>', views.TransacaoDetail.as_view()),
-    path('contabanc/<int:idconta>/transac_reco', views.TransacaoRecorrenteList.as_view()),
-    path('contabanc/<int:idconta>/transac_reco/<int:pk>', views.TransacaoRecorrenteDetail.as_view()),
-    path('contabanc/<int:idconta>/objetivo', views.ObjetivoList.as_view()),
-    path('contabanc/<int:idconta>/objetivo/<int:pk>', views.ObjetivoDetail.as_view()),
+    path('conta/', views.ContaBancariaList.as_view()),
+    path('conta/<int:pk>', views.ContaBancariaDetail.as_view()),
+    path('conta/<int:idconta>/transac', views.TransacaoList.as_view()),
+    path('conta/<int:idconta>/transac/<int:pk>', views.TransacaoDetail.as_view()),
 ]

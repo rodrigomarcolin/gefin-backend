@@ -1,7 +1,7 @@
 from rest_framework import permissions
 from rest_framework.permissions import IsAdminUser, SAFE_METHODS
 
-from .models import ContaBancariaModel
+from .models import ContaBancaria
 
 class IsOwner(permissions.BasePermission):
     """
@@ -27,17 +27,9 @@ class ContaBelongsToUser(permissions.BasePermission):
         Permite a operação se o usuário for dono da conta
     """
     def has_permission(self, request, view):
-        try:
-            conta = ContaBancariaModel.objects.filter(id=view.idconta).first()
-        except:
-            return False
-        
-        return conta.dono == request.user 
+        conta = request.user.contas.get(id=view.idconta)
+        return conta is not None
 
     def has_object_permission(self, request, view, obj):
-        try:
-            conta = ContaBancariaModel.objects.filter(id=view.idconta).first()
-        except:
-            return False
-        
-        return obj.conta == conta and conta.dono == request.user 
+        conta = request.user.contas.get(id=obj.id)
+        return conta is not None
